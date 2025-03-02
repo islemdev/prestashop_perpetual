@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+	<name>perpetual</name>
+	<displayName><![CDATA[pertpetual tech test]]></displayName>
+	<version><![CDATA[1.0.0]]></version>
+	<description><![CDATA[perpetual technical test]]></description>
+	<author><![CDATA[islemDev]]></author>
+	<tab><![CDATA[administration]]></tab>
+	<is_configurable>1</is_configurable>
+	<need_instance>1</need_instance>
+</module>

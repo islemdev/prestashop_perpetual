@@ -29,6 +29,7 @@
     </a>
   </div>
   <div class="media-body">
+    {hook h='displayMediaBodyBefore' product=$product}
     <span class="product-name">{$product.name}</span>
     <span class="product-quantity">x{$product.quantity}</span>
     <span class="product-price float-xs-right">{$product.price}</span>
