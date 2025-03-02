@@ -25,3 +25,28 @@
 * Don't forget to prefix your containers with your own identifier
 * to avoid any conflicts with others containers.
 */
+.sub-category img{
+    border-radius: 50%;
+}
+
+.sub-category-title {
+    text-align: center;
+}
+
+.sub-category {
+    display: flex;
+    flex-direction: column;
+    width: fit-content;
+}
+.sub-categories {
+    overflow: hidden;
+}
+
+.slick-track {
+    display: flex !important;
+    gap: 15px;
+  }
+  .slick-slide {
+    height: auto;
+    width: fit-content !important;
+  }

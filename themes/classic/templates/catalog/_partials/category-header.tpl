@@ -23,6 +23,7 @@
  * International Registered Trademark & Property of PrestaShop SA
  *}
 <div id="js-product-list-header">
+    {hook h='displaySubCategories' subCategories=$subcategories}
     {if $listing.pagination.items_shown_from == 1}
         <div class="block-category card card-block">
             <h1 class="h1">{$category.name}</h1>

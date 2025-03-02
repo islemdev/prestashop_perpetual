@@ -46,7 +46,6 @@ class Perpetual extends Module
         $this->bootstrap = true;
 
         parent::__construct();
-        $this->registerHook('displayMediaBodyBefore');
 
         $this->displayName = $this->l('pertpetual tech test');
         $this->description = $this->l('perpetual technical test');
@@ -65,7 +64,32 @@ class Perpetual extends Module
         return parent::install() &&
             $this->registerHook('header') &&
             $this->registerHook('displayBackOfficeHeader') &&
-            $this->registerHook('displayMediaBodyBefore');
+            $this->registerHook('displayMediaBodyBefore') &&
+            $this->registerHook('displaySubCategories');
+    }
+
+    public function hookDisplaySubCategories($params)
+    {
+        /**
+         * for the same reason as displaymediabeforebody + i'd prefer using hooks over overrides
+         * in prestashop (especially early versions) the override is with single usage, so, let it as the last solution
+         */
+
+         $subCategories = $params["subCategories"];
+         //add nb_products to subcategory
+         $subCategories = array_map(function($subCategory) {
+            $category = new Category($subCategory["id_category"]);
+            $subCategory["nb_products"] = $category->getProducts($this->context->language->id, 1, 12, null, null, true);
+            return $subCategory;
+        }, $subCategories);
+
+
+         //we can add caching, and cache refreshing hooks...
+         $this->context->smarty->assign([
+            "subCategories" => $subCategories
+         ]);
+         return $this->display(__FILE__, "display_sub_categories.tpl");
+
     }
 
     public function hookDisplayMediaBodyBefore($params)
@@ -257,7 +281,12 @@ class Perpetual extends Module
      */
     public function hookHeader()
     {
-        $this->context->controller->addJS($this->_path.'/views/js/front.js');
-        $this->context->controller->addCSS($this->_path.'/views/css/front.css');
+        if($this->context->controller->php_self == "category") {
+            $this->context->controller->addJS($this->_path.'/views/js/slick.min.js');
+            $this->context->controller->addCSS($this->_path.'/views/css/slick-theme.css');
+            $this->context->controller->addJS($this->_path.'/views/js/front.js');
+            $this->context->controller->addCSS($this->_path.'/views/css/front.css');
+        }
+        
     }
 }

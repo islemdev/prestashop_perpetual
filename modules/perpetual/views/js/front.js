@@ -25,3 +25,12 @@
 * Don't forget to prefix your containers with your own identifier
 * to avoid any conflicts with others containers.
 */
+$(function() {
+    $('.sub-categories').slick({
+        slidesToShow: 2,
+        slidesToScroll: 1,
+        infinite:true,
+        arrows: true
+    
+      });
+})
