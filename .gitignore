@@ -1,0 +1,4 @@
+node_modules
+
+/modules/**/views/img	
+!/modules/**/views/img/index.php	
