@@ -1690,7 +1690,7 @@ var TopMenu = (function (_DropDown) {
         }
         if (elmId && (0, _jquery2['default'])(e.target).data('depth') === 0) {
           (0, _jquery2['default'])('#' + elmId + ' .js-sub-menu').css({
-            top: (0, _jquery2['default'])('#' + elmId).height() + (0, _jquery2['default'])('#' + elmId).position().top
+            top: (0, _jquery2['default'])(".header-top").outerHeight() // just use header top outer height (including padding)
           });
         }
       });
