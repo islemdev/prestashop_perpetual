@@ -246,6 +246,8 @@ class Search
 
         $this->getSearchAdapter()->addFilter('id_shop', [$idShop]);
         $this->getSearchAdapter()->addGroupBy('id_product');
+        //add color, which should always be present ;)
+        $this->getSearchAdapter()->addGroupBy('color');
 
         $this->getSearchAdapter()->useFiltersAsInitialPopulation();
     }

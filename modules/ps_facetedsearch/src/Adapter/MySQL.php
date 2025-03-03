@@ -29,6 +29,7 @@ namespace PrestaShop\Module\FacetedSearch\Adapter;
 use Db;
 use Context;
 use StockAvailable;
+use Product;
 use Doctrine\Common\Collections\ArrayCollection;
 
 class MySQL extends AbstractAdapter
@@ -91,8 +92,23 @@ class MySQL extends AbstractAdapter
      * {@inheritdoc}
      */
     public function execute()
-    {
-        return $this->getDatabase()->executeS($this->getQuery());
+    {   $result = $this->getDatabase()->executeS($this->getQuery());
+        //prevent mapping count query
+        if(count($result) && isset($result[0]["c"])) {
+            return $result;
+        }
+        return array_map(function($row) {
+            if(!isset($row["color"])) {
+               return $row;
+            }
+            $color = $row["color"];
+            unset($row["color"]);
+            if(0 != $color) 
+                $row["id_product_attribute"] = $color;
+            
+
+            return $row;
+        }, $result); //add id_product_attribute
     }
 
     /**
@@ -187,9 +203,18 @@ class MySQL extends AbstractAdapter
                 'tableName' => 'attribute',
                 'tableAlias' => 'a',
                 'joinCondition' => '(a.id_attribute = pac.id_attribute)',
-                'joinType' => self::STRAIGHT_JOIN,
+                'joinType' => self::LEFT_JOIN,
                 'dependencyField' => 'id_attribute',
             ],
+
+            'is_color_group' => [
+                'tableName' => 'attribute_group',
+                'tableAlias' => 'ag',
+                'joinCondition' => '(a.id_attribute_group = ag.id_attribute_group)',
+                'joinType' => self::LEFT_JOIN,
+                'dependencyField' => 'id_attribute_group',
+            ],
+            
             'id_feature' => [
                 'tableName' => 'feature_product',
                 'tableAlias' => 'fp',
@@ -592,7 +617,6 @@ class MySQL extends AbstractAdapter
         if (empty($this->getGroupFields())) {
             return $groupFields;
         }
-
         foreach ($this->getGroupFields() as $key => $values) {
             if (strpos($values, '.') !== false
                 || strpos($values, '(') !== false) {
@@ -604,7 +628,11 @@ class MySQL extends AbstractAdapter
                 $joinMapping = $filterToTableMapping[$values];
                 $groupFields[$key] = $joinMapping['tableAlias'] . '.' . $values;
             } else {
-                $groupFields[$key] = 'p.' . $values;
+                if("color" === $values) {
+                    $groupFields[$key] = $values; //this is really a dirty fix, sorry for that
+                } else {
+                    $groupFields[$key] = 'p.' . $values;
+                }
             }
         }
 
@@ -634,7 +662,7 @@ class MySQL extends AbstractAdapter
     {
         $mysqlAdapter = $this->getFilteredSearchAdapter();
         $mysqlAdapter->copyFilters($this);
-        $mysqlAdapter->setSelectFields(['COUNT(DISTINCT p.id_product) c']);
+        $mysqlAdapter->setSelectFields(['COUNT(DISTINCT p.id_product, color) c']); //add color to distinct it in count calc ;)
         $mysqlAdapter->setLimit(null);
         $mysqlAdapter->setOrderField('');
 
@@ -651,7 +679,7 @@ class MySQL extends AbstractAdapter
         $this->resetGroupBy();
         $this->addGroupBy($fieldName);
         $this->addSelectField($fieldName);
-        $this->addSelectField('COUNT(DISTINCT p.id_product) c');
+        $this->addSelectField('COUNT(DISTINCT p.id_product, color) c');
         $this->setLimit(null);
         $this->setOrderField('');
 
@@ -673,11 +701,15 @@ class MySQL extends AbstractAdapter
                 'condition',
                 'weight',
                 'price',
+                'id_attribute_group',
+                'is_color_group',
+                'IF(ag.is_color_group = 1, pa.id_product_attribute, 0) as color'
             ]
         );
         $this->initialPopulation = clone $this;
         $this->resetAll();
         $this->addSelectField('id_product');
+        $this->addSelectField('color');
     }
 
     /**

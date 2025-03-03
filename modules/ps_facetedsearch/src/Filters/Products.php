@@ -84,6 +84,8 @@ class Products
         $this->searchAdapter->setOrderDirection($orderWay);
 
         $this->searchAdapter->addGroupBy('id_product');
+        //also here, should always be present ;)
+        $this->searchAdapter->addGroupBy('color');
         if (isset($selectedFilters['price']) || $orderBy === 'price') {
             $this->searchAdapter->addSelectField('id_product');
             $this->searchAdapter->addSelectField('price');

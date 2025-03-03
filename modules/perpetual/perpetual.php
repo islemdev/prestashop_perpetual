@@ -46,7 +46,7 @@ class Perpetual extends Module
         $this->bootstrap = true;
 
         parent::__construct();
-
+        $this->registerHook('filterProductSearch');
         $this->displayName = $this->l('pertpetual tech test');
         $this->description = $this->l('perpetual technical test');
 
@@ -65,9 +65,23 @@ class Perpetual extends Module
             $this->registerHook('header') &&
             $this->registerHook('displayBackOfficeHeader') &&
             $this->registerHook('displayMediaBodyBefore') &&
-            $this->registerHook('displaySubCategories');
+            $this->registerHook('displaySubCategories') &&
+            $this->registerHook('actionGetProductPropertiesAfter') &&
+            $this->registerHook('filterProductSearch');
     }
 
+    public function hookFilterProductSearch($params)
+    {
+    }
+
+    public function hookActionGetProductPropertiesAfter($params)
+    {
+        $product = $params["product"];
+        //some attributes have to change, ex: link
+        if(!isset($params['product']["id_product_attribute"]))
+            return;
+        $params['product']["link"] = $this->context->link->getProductLink((int) $product['id_product'], $product['link_rewrite'], $product['category'], $product['ean13'], null, null, null, false, false, false, ["id_product_attribute" => $product["id_product_attribute"]]);
+    }
     public function hookDisplaySubCategories($params)
     {
         /**
